@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matematická Pevnost: Záchrana Jednorožce</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Hlavní Menu -->
+        <div id="main-menu" class="screen">
+            <h1>Matematická Pevnost</h1>
+            <p>Postav hrad, ubraň ho před padouši a zachraň jednorožce!</p>
+            <button id="btn-start" class="btn primary">Hrát</button>
+            <button id="btn-stats-menu" class="btn secondary">Statistiky</button>
+        </div>
+
+        <!-- Fáze 1: Stavění -->
+        <div id="build-screen" class="screen hidden">
+            <h2>Fáze 1: Stavba Hradu</h2>
+            <div class="progress-bar-container">
+                <div id="build-progress" class="progress-bar"></div>
+            </div>
+            <p id="build-progress-text">0% Postaveno</p>
+            <div id="build-math-problem" class="math-problem"></div>
+            
+            <div class="input-area">
+                <input type="number" id="build-input" class="num-input" autocomplete="off" placeholder="Zadej výsledek">
+                <div id="build-compare-buttons" class="compare-buttons hidden">
+                    <button class="btn compare-btn" data-val="<"><</button>
+                    <button class="btn compare-btn" data-val="=">=</button>
+                    <button class="btn compare-btn" data-val=">">></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fáze 2: Obrana -->
+        <div id="defend-screen" class="screen hidden">
+            <div class="top-hud">
+                <div class="hud-item">Vlna: <span id="wave-display">1</span></div>
+                <div class="hud-item">Mince: <span id="coins-display">0</span> 🪙</div>
+                <div class="hud-item streak-display">Streak: <span id="streak-display">0</span> 🔥</div>
+            </div>
+            
+            <div class="castle-area">
+                <div class="castle">🏰</div>
+                <div class="hp-bar-container">
+                    <div id="castle-hp-bar" class="hp-bar"></div>
+                </div>
+                <p id="castle-hp-text">100 / 100</p>
+            </div>
+
+            <!-- Prostor pro nepřátele -->
+            <div id="enemies-area"></div>
+
+            <!-- QTE Jednorožec -->
+            <div id="qte-container" class="hidden">
+                <div class="qte-character">🦄 Pomoc!</div>
+                <div class="progress-bar-container qte-timer-container">
+                    <div id="qte-timer-bar" class="progress-bar qte-timer"></div>
+                </div>
+                <div id="qte-math-problem" class="math-problem"></div>
+            </div>
+
+            <div class="input-area">
+                <input type="number" id="defend-input" class="num-input" autocomplete="off" placeholder="Zadej výsledek">
+                <div id="defend-compare-buttons" class="compare-buttons hidden">
+                    <button class="btn compare-btn" data-val="<"><</button>
+                    <button class="btn compare-btn" data-val="=">=</button>
+                    <button class="btn compare-btn" data-val=">">></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Obchod -->
+        <div id="shop-screen" class="screen hidden">
+            <h2>Obchod - Konec vlny <span id="shop-wave-num"></span></h2>
+            <p>Máš: <span id="shop-coins"></span> 🪙</p>
+            <div class="shop-items">
+                <div class="shop-item">
+                    <h3>Pevnější Hradby</h3>
+                    <p>Zvýší maximální životy hradu (+20 HP)</p>
+                    <button class="btn shop-buy-btn" data-upgrade="hp" id="buy-hp">Koupit (50 🪙)</button>
+                </div>
+                <div class="shop-item">
+                    <h3>Zpomalovací Aura</h3>
+                    <p>Zpomalí pohyb nepřátel</p>
+                    <button class="btn shop-buy-btn" data-upgrade="slow" id="buy-slow">Koupit (100 🪙)</button>
+                </div>
+                <div class="shop-item">
+                    <h3>Vílí Pomocník</h3>
+                    <p>Občas sám zaútočí na nepřítele</p>
+                    <button class="btn shop-buy-btn" data-upgrade="fairy" id="buy-fairy">Koupit (150 🪙)</button>
+                </div>
+            </div>
+            <button id="btn-next-wave" class="btn primary mt-2">Další Vlna!</button>
+        </div>
+
+        <!-- Game Over & Statistiky -->
+        <div id="game-over-screen" class="screen hidden">
+            <h2>Hrad padl! 💥</h2>
+            <div class="stats-container">
+                <p>Dosažená vlna: <span id="stat-wave"></span></p>
+                <p>Celkem skóre: <span id="stat-score"></span></p>
+                <p>Nejdelší streak: <span id="stat-streak"></span> 🔥</p>
+                <p>Zabito nepřátel: <span id="stat-kills"></span></p>
+            </div>
+            <button id="btn-restart" class="btn primary mt-2">Hrát znovu</button>
+            <button id="btn-to-main" class="btn secondary mt-2">Hlavní Menu</button>
+        </div>
+
+        <!-- Trvalé statistiky (z Menu) -->
+        <div id="stats-menu-screen" class="screen hidden">
+            <h2>Síň Slávy</h2>
+            <div class="stats-container">
+                <p>Nejvyšší vlna: <span id="global-best-wave">0</span></p>
+                <p>Celkem odehráno her: <span id="global-games-played">0</span></p>
+                <p>Nasbíráno mincí (historicky): <span id="global-total-coins">0</span></p>
+            </div>
+            <button id="btn-stats-back" class="btn secondary mt-2">Zpět</button>
+        </div>
+
+        <!-- Particle container pro efekty -->
+        <div id="particles"></div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

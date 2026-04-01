@@ -1,0 +1,318 @@
+/* Reset a základní nastavení */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #1a1a2e;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#game-container {
+    width: 800px;
+    height: 600px;
+    background: linear-gradient(135deg, #16213e, #0f3460);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.screen {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Typografie a Texty */
+h1 {
+    font-size: 3rem;
+    color: #e94560;
+    text-shadow: 2px 2px 4px #000;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+h2 {
+    font-size: 2.5rem;
+    color: #43bccd;
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Tlačítka */
+.btn {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 10px;
+    transition: transform 0.1s, background-color 0.2s;
+    font-weight: bold;
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.primary {
+    background-color: #e94560;
+    color: white;
+}
+.primary:hover:not(:disabled) { background-color: #ff5c77; }
+
+.secondary {
+    background-color: #43bccd;
+    color: white;
+}
+.secondary:hover:not(:disabled) { background-color: #5ed6e6; }
+
+.mt-2 { margin-top: 20px; }
+
+/* Progress bary (Stavba, HP, QTE) */
+.progress-bar-container {
+    width: 80%;
+    height: 30px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    border: 2px solid #333;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+#build-progress { background-color: #fca311; }
+
+/* HP Bar specificky */
+.hp-bar-container {
+    width: 150px;
+    height: 20px;
+    background-color: #333;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 5px auto;
+}
+.hp-bar {
+    height: 100%;
+    width: 100%;
+    background-color: #e94560;
+    transition: width 0.3s;
+}
+
+/* Matematické zadání a Input */
+.math-problem {
+    font-size: 4rem;
+    font-weight: bold;
+    margin: 20px 0;
+    background: rgba(255,255,255,0.1);
+    padding: 20px 40px;
+    border-radius: 15px;
+    text-shadow: 2px 2px #000;
+}
+
+.input-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    z-index: 10;
+}
+
+.num-input {
+    font-size: 2rem;
+    padding: 10px;
+    width: 200px;
+    text-align: center;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background-color: #fff;
+    color: #000;
+}
+
+.compare-buttons {
+    display: flex;
+    gap: 20px;
+}
+.compare-btn {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    background-color: #43bccd;
+}
+
+/* HUD Obrana */
+#defend-screen {
+    justify-content: flex-start;
+}
+
+.top-hud {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.4);
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.streak-display { color: #fca311; }
+
+.castle-area {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    z-index: 5;
+}
+.castle { font-size: 5rem; text-shadow: 0 0 10px #43bccd; }
+
+#enemies-area {
+    position: absolute;
+    top: 60px;
+    left: 150px;
+    right: 0;
+    bottom: 120px; /* misto pro input dole */
+    overflow: hidden;
+}
+
+/* Nepřítel */
+.enemy {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: left 0.1s linear;
+}
+.enemy-sprite {
+    font-size: 3rem;
+    animation: bounce 1s infinite alternate;
+}
+.enemy-math {
+    background: rgba(0,0,0,0.7);
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1rem;
+    white-space: nowrap;
+    border: 1px solid #fff;
+}
+.enemy.targeted .enemy-math {
+    border-color: #fca311;
+    color: #fca311;
+    box-shadow: 0 0 10px #fca311;
+}
+
+
+/* QTE */
+#qte-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(142, 68, 173, 0.9);
+    padding: 20px;
+    border-radius: 15px;
+    border: 3px solid #f1c40f;
+    box-shadow: 0 0 30px #f1c40f;
+    text-align: center;
+    z-index: 20;
+    width: 400px;
+}
+.qte-character { font-size: 4rem; margin-bottom: 10px; animation: shake 0.5s infinite; }
+.qte-timer-container { width: 100%; height: 15px; margin: 0 auto; }
+.qte-timer { background-color: #f1c40f; width: 100%; }
+
+/* Animace */
+@keyframes bounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-10px); }
+}
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+/* Obchod */
+.shop-items {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.shop-item {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 10px;
+    width: 200px;
+    text-align: center;
+}
+.shop-item h3 { font-size: 1.2rem; margin-bottom: 10px; color: #fca311;}
+.shop-item p { font-size: 0.9rem; margin-bottom: 15px; }
+
+/* Obrazovka dole pro input v obrane */
+#defend-screen > .input-area {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Particles */
+.particle {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 50%;
+    animation: fadeout 0.8s forwards;
+    z-index: 100;
+}
+@keyframes fadeout {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(2); }
+}
