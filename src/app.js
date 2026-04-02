@@ -166,7 +166,7 @@ function attachEventListeners() {
         els.buildActionArea.style.display = 'flex';
 
         // Nastavíme vizuál budování
-        els.buildVisualStep.style.backgroundImage = `url('assets/${state.build.style}.png')`;
+        els.buildVisualStep.style.backgroundImage = `url('assets/castle_pieces/${state.build.style}.png')`;
         els.buildVisualStep.style.height = '0%';
 
         generateBuildProblem();
@@ -406,7 +406,7 @@ function startDefendPhase() {
     els.defendInput.focus();
 
     // Změna pozadí a vzhledu hradu
-    els.mainCastle.style.backgroundImage = `url('assets/${state.build.style}.png')`;
+    els.mainCastle.style.backgroundImage = `url('assets/castle_pieces/${state.build.style}.png')`;
     updateBackground();
     
     // Nastavení obtížnosti podle vlny (nekonečné škálování)
