@@ -1056,3 +1056,7 @@ function updateGlobalStatsUI() {
 
 // Spuštění po načtení
 window.onload = init;
+
+if (typeof module !== 'undefined') {
+    module.exports = { generateMathProblem };
+}
