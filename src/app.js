@@ -1038,10 +1038,14 @@ document.head.appendChild(styleSheet);
 function loadGlobalStats() {
     const saved = localStorage.getItem('mathFortressStats');
     if (saved) {
-        const parsed = JSON.parse(saved);
-        state.stats.maxWave = parsed.maxWave || 0;
-        state.stats.gamesPlayed = parsed.gamesPlayed || 0;
-        state.stats.totalCoins = parsed.totalCoins || 0;
+        try {
+            const parsed = JSON.parse(saved);
+            state.stats.maxWave = parsed.maxWave || 0;
+            state.stats.gamesPlayed = parsed.gamesPlayed || 0;
+            state.stats.totalCoins = parsed.totalCoins || 0;
+        } catch (e) {
+            console.error("Failed to parse global stats from localStorage:", e);
+        }
     }
 }
 
