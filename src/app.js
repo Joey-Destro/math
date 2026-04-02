@@ -14,9 +14,9 @@ let state = {
         maxWave: 0
     },
     build: {
-        progress: 0, // 0 - 100
-        target: 100, // kolik % je potřeba na dostavení
-        increment: 20 // kolik % přidá jeden správný příklad
+        progress: 0, // aktuální krok
+        target: 7, // 7 kroků k postavení
+        style: 'castle1' // výchozí vzhled
     },
     castle: {
         hp: 100,
@@ -57,6 +57,10 @@ const els = {
     btnStatsBack: document.getElementById('btn-stats-back'),
     
     // Build
+    buildStyleSelection: document.getElementById('build-style-selection'),
+    btnStartBuild: document.getElementById('btn-start-build'),
+    buildActionArea: document.getElementById('build-action-area'),
+    buildVisualStep: document.getElementById('build-visual-step'),
     buildProgress: document.getElementById('build-progress'),
     buildProgressText: document.getElementById('build-progress-text'),
     buildMathProblem: document.getElementById('build-math-problem'),
@@ -69,7 +73,9 @@ const els = {
     streakDisplay: document.getElementById('streak-display'),
     castleHpBar: document.getElementById('castle-hp-bar'),
     castleHpText: document.getElementById('castle-hp-text'),
+    mainCastle: document.getElementById('main-castle'),
     enemiesArea: document.getElementById('enemies-area'),
+    gameContainer: document.getElementById('game-container'),
     defendInput: document.getElementById('defend-input'),
     defendCompareBtns: document.getElementById('defend-compare-buttons'),
     
@@ -144,13 +150,41 @@ function attachEventListeners() {
     // Game Over
     els.btnRestart.addEventListener('click', startGame);
     els.btnToMain.addEventListener('click', () => showScreen('main-menu'));
+
+    // Build Style Selection
+    document.querySelectorAll('.style-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+            document.querySelectorAll('.style-option').forEach(opt => opt.classList.remove('selected'));
+            e.target.classList.add('selected');
+            state.build.style = e.target.dataset.style;
+        });
+    });
+
+    els.btnStartBuild.addEventListener('click', () => {
+        els.buildStyleSelection.classList.add('hidden');
+        els.buildActionArea.classList.remove('hidden');
+        els.buildActionArea.style.display = 'flex';
+
+        // Nastavíme vizuál budování
+        els.buildVisualStep.style.backgroundImage = `url('assets/${state.build.style}.png')`;
+        els.buildVisualStep.style.height = '0%';
+
+        generateBuildProblem();
+    });
 }
 
 // --- Generování matematických příkladů ---
 function generateMathProblem(difficulty) {
-    // difficulty: 1 (lehké, stavba), 2 (střední, vlny 1-3), 3 (těžší, vlny 4+), 4 (QTE - nejtěžší)
-    const types = ['add', 'sub', 'mul', 'div', 'comp', 'round'];
-    const type = types[Math.floor(Math.random() * types.length)];
+    // difficulty scales indefinitely based on wave (1 = build, 2+ = waves)
+    let availableTypes = ['add', 'sub'];
+
+    // As difficulty (wave) increases, unlock new problem types
+    if (difficulty >= 2) availableTypes.push('mul', 'comp');
+    if (difficulty >= 3) availableTypes.push('div', 'round');
+    if (difficulty >= 5) availableTypes.push('frac'); // Fractions addition
+    if (difficulty >= 7) availableTypes.push('pow'); // Powers
+
+    const type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
     
     let text = "";
     let answer = null;
@@ -215,6 +249,27 @@ function generateMathProblem(difficulty) {
             text = `Zaokrouhli ${numRound}`;
             answer = Math.round(numRound / 10) * 10;
             break;
+
+        case 'frac': // Same denominator addition
+            let denom = getRandomInt(2, 10);
+            let n1 = getRandomInt(1, denom - 1);
+            let n2 = getRandomInt(1, denom - n1 > 0 ? denom - n1 : 2); // Avoid negative, try to keep sum <= denom but allow > 1
+            text = `${n1}/${denom} + ${n2}/${denom} = ?/${denom}`;
+            answer = n1 + n2;
+            break;
+
+        case 'pow': // Simple powers
+            let base = getRandomInt(2, Math.min(5 + Math.floor(difficulty/3), 10));
+            let exp = getRandomInt(2, 3); // squares and cubes
+            text = `${base}^${exp}`;
+            answer = Math.pow(base, exp);
+            break;
+    }
+
+    // Fallback if answer somehow wasn't assigned
+    if (answer === null || typeof answer === 'undefined') {
+        text = "1 + 1";
+        answer = 2;
     }
     
     return { text, answer, type: probType };
@@ -251,16 +306,22 @@ function startBuildPhase() {
     state.phase = 'build';
     state.build.progress = 0;
     
-    updateBuildUI();
-    generateBuildProblem();
+    // Obnovit UI pro výběr stylu
+    els.buildStyleSelection.classList.remove('hidden');
+    els.buildActionArea.classList.add('hidden');
+    els.buildActionArea.style.display = 'none';
     
+    updateBuildUI();
     showScreen('build-screen');
-    els.buildInput.focus();
 }
 
 function updateBuildUI() {
-    els.buildProgress.style.width = `${state.build.progress}%`;
-    els.buildProgressText.textContent = `${state.build.progress}% Postaveno`;
+    let percent = (state.build.progress / state.build.target) * 100;
+    els.buildProgress.style.width = `${percent}%`;
+    els.buildProgressText.textContent = `Krok ${state.build.progress} / ${state.build.target}`;
+
+    // Vizuál rostoucího hradu
+    els.buildVisualStep.style.height = `${percent}%`;
 }
 
 function generateBuildProblem() {
@@ -285,7 +346,7 @@ function handleBuildInput(val) {
     // Převod na string pro snadné porovnání (čísla i znaky)
     if (val.toString() === state.currentProblem.answer.toString()) {
         // Správně
-        state.build.progress += state.build.increment;
+        state.build.progress += 1;
         createParticles(els.buildMathProblem, '#43bccd'); // modré jiskry
         
         // Mince za stavbu (1 za správnou odpověď)
@@ -293,8 +354,8 @@ function handleBuildInput(val) {
         state.stats.totalCoins += 1;
         saveGlobalStats();
         
-        if (state.build.progress >= 100) {
-            state.build.progress = 100;
+        if (state.build.progress >= state.build.target) {
+            state.build.progress = state.build.target;
             updateBuildUI();
             setTimeout(startDefendPhase, 1000); // pauza před obranou
         } else {
@@ -343,10 +404,13 @@ function startDefendPhase() {
     showScreen('defend-screen');
     els.defendInput.value = '';
     els.defendInput.focus();
+
+    // Změna pozadí a vzhledu hradu
+    els.mainCastle.style.backgroundImage = `url('assets/${state.build.style}.png')`;
+    updateBackground();
     
-    // Nastavení obtížnosti podle vlny
-    let difficulty = 2;
-    if (state.stats.wave > 3) difficulty = 3;
+    // Nastavení obtížnosti podle vlny (nekonečné škálování)
+    let difficulty = Math.max(2, Math.floor(state.stats.wave / 2) + 1);
     
     // Parametry vlny
     let totalEnemies = 5 + (state.stats.wave * 2);
@@ -361,11 +425,19 @@ function startDefendPhase() {
     // Spawner nepřátel
     let spawnRate = Math.max(1000, 3000 - (state.stats.wave * 200)); // Rychlejší spawn v dalších vlnách
     
+    // Jestli je to boss level
+    const isBossWave = state.stats.wave % 5 === 0;
+
     state.intervals.spawner = setInterval(() => {
         if (state.phase !== 'defend' || state.qte.active) return;
         
         if (spawnedEnemies < totalEnemies) {
-            spawnEnemy(difficulty);
+            // Poslední nepřítel ve vlny dělitelné 5 je Boss
+            let spawnBoss = false;
+            if (isBossWave && spawnedEnemies === totalEnemies - 1) {
+                spawnBoss = true;
+            }
+            spawnEnemy(difficulty, spawnBoss);
             spawnedEnemies++;
         } else if (state.enemies.length === 0 && !state.qte.active) {
             // Vlna dokončena
@@ -380,15 +452,30 @@ function startDefendPhase() {
     }, spawnRate);
 }
 
-function spawnEnemy(difficulty) {
+function updateBackground() {
+    els.gameContainer.classList.remove('bg-1', 'bg-2', 'bg-3');
+    if (state.stats.wave <= 3) els.gameContainer.classList.add('bg-1');
+    else if (state.stats.wave <= 6) els.gameContainer.classList.add('bg-2');
+    else els.gameContainer.classList.add('bg-3');
+}
+
+function spawnEnemy(difficulty, isBoss = false) {
     const enemyEl = document.createElement('div');
     enemyEl.classList.add('enemy');
     
     // Grafika
     const spriteEl = document.createElement('div');
     spriteEl.classList.add('enemy-sprite');
-    const emojis = ['👹', '👽', '👻', '👺', '🕷️'];
-    spriteEl.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+    if (isBoss) {
+        spriteEl.classList.add('enemy-boss');
+        spriteEl.style.backgroundImage = `url('assets/boss.png')`;
+        difficulty = Math.min(difficulty + 1, 4); // boss je o něco těžší
+    } else {
+        const sprites = ['enemy1.png', 'enemy2.png', 'enemy3.png'];
+        const chosenSprite = sprites[Math.floor(Math.random() * sprites.length)];
+        spriteEl.style.backgroundImage = `url('assets/${chosenSprite}')`;
+    }
     
     // Příklad
     const mathEl = document.createElement('div');
@@ -401,7 +488,8 @@ function spawnEnemy(difficulty) {
     
     // Pozice (zprava, náhodná výška)
     const startX = els.enemiesArea.clientWidth;
-    const startY = Math.random() * (els.enemiesArea.clientHeight - 80); // 80px je cca výška nepřítele
+    const heightOffset = isBoss ? 150 : 80;
+    const startY = Math.random() * (els.enemiesArea.clientHeight - heightOffset);
     
     enemyEl.style.left = `${startX}px`;
     enemyEl.style.top = `${startY}px`;
@@ -463,11 +551,12 @@ function damageCastle(amount) {
 }
 
 function updateDefendInputMode() {
-    if (state.enemies.length === 0) return;
+    let aliveEnemies = state.enemies.filter(e => !e.dying);
+    if (aliveEnemies.length === 0) return;
     if (state.qte.active) return; // Nepřepínat vstupy, pokud běží QTE
     
     // Najdi nejbližšího nepřítele
-    let closestEnemy = state.enemies.reduce((prev, curr) => (prev.x < curr.x) ? prev : curr);
+    let closestEnemy = aliveEnemies.reduce((prev, curr) => (prev.x < curr.x) ? prev : curr);
     
     // Vizuální označení cíle
     state.enemies.forEach(e => e.el.classList.remove('targeted'));
@@ -498,7 +587,7 @@ function handleDefendInput(val) {
     let sortedEnemies = [...state.enemies].sort((a, b) => a.x - b.x);
     
     for (let enemy of sortedEnemies) {
-        if (enemy.problem.answer.toString() === val.toString()) {
+        if (!enemy.dying && enemy.problem.answer.toString() === val.toString()) {
             hit = true;
             hitEnemyIndex = state.enemies.findIndex(e => e.id === enemy.id);
             break;
@@ -508,27 +597,39 @@ function handleDefendInput(val) {
     if (hit && hitEnemyIndex !== -1) {
         // Zásah
         let enemy = state.enemies[hitEnemyIndex];
-        createParticles(enemy.el, '#fca311'); // zlaté částice
-        enemy.el.remove();
-        state.enemies.splice(hitEnemyIndex, 1);
         
-        state.stats.kills++;
-        state.stats.score += 10 * (1 + Math.floor(state.stats.streak / 5)); // Bonus za streak
-        
-        // Mince + Streak
-        state.stats.streak++;
-        if (state.stats.streak > state.stats.maxStreak) state.stats.maxStreak = state.stats.streak;
-        
-        // Každých 5 ve streaku = bonusová mince
-        let coinsEarned = 1 + Math.floor(state.stats.streak / 5);
-        state.stats.coins += coinsEarned;
-        state.stats.totalCoins += coinsEarned;
-        
-        els.streakDisplay.textContent = state.stats.streak;
-        els.coinsDisplay.textContent = state.stats.coins;
+        // Označíme nepřítele jako mrtvého, aby už na něj nešlo dál útočit
+        enemy.dying = true;
+
+        // Princezna vystřelí projektil
+        shootProjectile(enemy, () => {
+            createParticles(enemy.el, '#fca311'); // zlaté částice
+            enemy.el.remove();
+
+            let realIdx = state.enemies.findIndex(e => e.id === enemy.id);
+            if (realIdx !== -1) {
+                state.enemies.splice(realIdx, 1);
+
+                state.stats.kills++;
+                state.stats.score += 10 * (1 + Math.floor(state.stats.streak / 5)); // Bonus za streak
+
+                // Mince + Streak
+                state.stats.streak++;
+                if (state.stats.streak > state.stats.maxStreak) state.stats.maxStreak = state.stats.streak;
+
+                // Každých 5 ve streaku = bonusová mince
+                let coinsEarned = 1 + Math.floor(state.stats.streak / 5);
+                state.stats.coins += coinsEarned;
+                state.stats.totalCoins += coinsEarned;
+
+                els.streakDisplay.textContent = state.stats.streak;
+                els.coinsDisplay.textContent = state.stats.coins;
+
+                updateDefendInputMode();
+            }
+        });
         
         els.defendInput.value = '';
-        updateDefendInputMode();
         
     } else {
         // Minutí
@@ -546,6 +647,51 @@ function handleDefendInput(val) {
              els.defendInput.value = '';
         }
     }
+}
+
+function shootProjectile(enemy, onHitCallback) {
+    const proj = document.createElement('div');
+    proj.classList.add('projectile');
+
+    // Zjistit pozici princezny
+    const princessEl = document.querySelector('.princess');
+    const pRect = princessEl.getBoundingClientRect();
+    const cRect = els.gameContainer.getBoundingClientRect();
+
+    let startX = pRect.left - cRect.left + pRect.width / 2;
+    let startY = pRect.top - cRect.top + pRect.height / 2;
+
+    proj.style.left = `${startX}px`;
+    proj.style.top = `${startY}px`;
+
+    els.gameContainer.appendChild(proj);
+
+    // Animace k nepříteli
+    let duration = 300; // ms
+    let startTime = performance.now();
+
+    function animateProjectile(currentTime) {
+        let elapsed = currentTime - startTime;
+        let progress = Math.min(elapsed / duration, 1);
+
+        let targetX = enemy.x + els.enemiesArea.offsetLeft;
+        let targetY = enemy.y + els.enemiesArea.offsetTop + 40; // zhruba střed nepřítele
+
+        let currentX = startX + (targetX - startX) * progress;
+        let currentY = startY + (targetY - startY) * progress;
+
+        proj.style.left = `${currentX}px`;
+        proj.style.top = `${currentY}px`;
+
+        if (progress < 1) {
+            requestAnimationFrame(animateProjectile);
+        } else {
+            proj.remove();
+            if (onHitCallback) onHitCallback();
+        }
+    }
+
+    requestAnimationFrame(animateProjectile);
 }
 
 function resetStreak() {

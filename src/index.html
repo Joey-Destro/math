@@ -19,18 +19,36 @@
         <!-- Fáze 1: Stavění -->
         <div id="build-screen" class="screen hidden">
             <h2>Fáze 1: Stavba Hradu</h2>
-            <div class="progress-bar-container">
-                <div id="build-progress" class="progress-bar"></div>
+
+            <div id="build-style-selection">
+                <p>Vyber si vzhled svého hradu:</p>
+                <div class="style-chooser">
+                    <div class="style-option selected" data-style="castle1" style="background-image: url('assets/castle1.png');"></div>
+                    <div class="style-option" data-style="castle2" style="background-image: url('assets/castle2.png');"></div>
+                    <div class="style-option" data-style="castle3" style="background-image: url('assets/castle3.png');"></div>
+                </div>
+                <button id="btn-start-build" class="btn primary">Začít stavět!</button>
             </div>
-            <p id="build-progress-text">0% Postaveno</p>
-            <div id="build-math-problem" class="math-problem"></div>
-            
-            <div class="input-area">
-                <input type="number" id="build-input" class="num-input" autocomplete="off" placeholder="Zadej výsledek">
-                <div id="build-compare-buttons" class="compare-buttons hidden">
-                    <button class="btn compare-btn" data-val="<"><</button>
-                    <button class="btn compare-btn" data-val="=">=</button>
-                    <button class="btn compare-btn" data-val=">">></button>
+
+            <div id="build-action-area" class="hidden" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div class="progress-bar-container">
+                    <div id="build-progress" class="progress-bar"></div>
+                </div>
+                <p id="build-progress-text">Krok 0 / 7</p>
+
+                <div class="build-visual-container">
+                    <div id="build-visual-step" class="build-visual-step" style="height: 0%;"></div>
+                </div>
+
+                <div id="build-math-problem" class="math-problem"></div>
+
+                <div class="input-area">
+                    <input type="number" id="build-input" class="num-input" autocomplete="off" placeholder="Zadej výsledek">
+                    <div id="build-compare-buttons" class="compare-buttons hidden">
+                        <button class="btn compare-btn" data-val="<"><</button>
+                        <button class="btn compare-btn" data-val="=">=</button>
+                        <button class="btn compare-btn" data-val=">">></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -44,7 +62,10 @@
             </div>
             
             <div class="castle-area">
-                <div class="castle">🏰</div>
+                <div class="castle-container">
+                    <div class="castle" id="main-castle"></div>
+                    <div class="princess"></div>
+                </div>
                 <div class="hp-bar-container">
                     <div id="castle-hp-bar" class="hp-bar"></div>
                 </div>
