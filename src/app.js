@@ -166,7 +166,7 @@ function attachEventListeners() {
         els.buildActionArea.style.display = 'flex';
 
         // Nastavíme vizuál budování
-        els.buildVisualStep.style.backgroundImage = `url('assets/${state.build.style}.svg')`;
+        els.buildVisualStep.style.backgroundImage = `url('assets/${state.build.style}.png')`;
         els.buildVisualStep.style.height = '0%';
 
         generateBuildProblem();
@@ -406,7 +406,7 @@ function startDefendPhase() {
     els.defendInput.focus();
 
     // Změna pozadí a vzhledu hradu
-    els.mainCastle.style.backgroundImage = `url('assets/${state.build.style}.svg')`;
+    els.mainCastle.style.backgroundImage = `url('assets/${state.build.style}.png')`;
     updateBackground();
     
     // Nastavení obtížnosti podle vlny (nekonečné škálování)
@@ -469,9 +469,10 @@ function spawnEnemy(difficulty, isBoss = false) {
 
     if (isBoss) {
         spriteEl.classList.add('enemy-boss');
+        spriteEl.style.backgroundImage = `url('assets/boss.png')`;
         difficulty = Math.min(difficulty + 1, 4); // boss je o něco těžší
     } else {
-        const sprites = ['enemy1.svg', 'enemy2.svg', 'enemy3.svg'];
+        const sprites = ['enemy1.png', 'enemy2.png', 'enemy3.png'];
         const chosenSprite = sprites[Math.floor(Math.random() * sprites.length)];
         spriteEl.style.backgroundImage = `url('assets/${chosenSprite}')`;
     }
