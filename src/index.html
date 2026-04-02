@@ -12,6 +12,22 @@
         <div id="main-menu" class="screen">
             <h1>Matematická Pevnost</h1>
             <p>Postav hrad, ubraň ho před padouši a zachraň jednorožce!</p>
+
+            <div class="settings-container" style="margin: 20px 0; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid #444;">
+                <h3 style="margin-top: 0; color: #fca311;">Nastavení příkladů</h3>
+                <div class="checkbox-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;">
+                    <label><input type="checkbox" id="setting-add" checked> Sčítání</label>
+                    <label><input type="checkbox" id="setting-sub" checked> Odčítání</label>
+                    <label><input type="checkbox" id="setting-mul"> Násobení</label>
+                    <label><input type="checkbox" id="setting-div"> Dělení</label>
+                    <label><input type="checkbox" id="setting-comp"> Porovnávání</label>
+                    <label><input type="checkbox" id="setting-round"> Zaokrouhlování</label>
+                    <label><input type="checkbox" id="setting-frac"> Zlomky</label>
+                    <label><input type="checkbox" id="setting-pow"> Mocniny</label>
+                </div>
+                <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 0;">Poznámka: Ve vyšších vlnách se obtížnost stále zvyšuje (např. větší čísla).</p>
+            </div>
+
             <button id="btn-start" class="btn primary">Hrát</button>
             <button id="btn-stats-menu" class="btn secondary">Statistiky</button>
         </div>

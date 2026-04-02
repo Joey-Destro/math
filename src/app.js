@@ -38,6 +38,16 @@ let state = {
         gameLoop: null,
         spawner: null,
         fairy: null
+    },
+    settings: {
+        add: true,
+        sub: true,
+        mul: false,
+        div: false,
+        comp: false,
+        round: false,
+        frac: false,
+        pow: false
     }
 };
 
@@ -106,7 +116,17 @@ const els = {
     globalTotalCoins: document.getElementById('global-total-coins'),
 
     // Particles
-    particles: document.getElementById('particles')
+    particles: document.getElementById('particles'),
+
+    // Settings
+    settingAdd: document.getElementById('setting-add'),
+    settingSub: document.getElementById('setting-sub'),
+    settingMul: document.getElementById('setting-mul'),
+    settingDiv: document.getElementById('setting-div'),
+    settingComp: document.getElementById('setting-comp'),
+    settingRound: document.getElementById('setting-round'),
+    settingFrac: document.getElementById('setting-frac'),
+    settingPow: document.getElementById('setting-pow')
 };
 
 // --- Inicializace ---
@@ -175,14 +195,21 @@ function attachEventListeners() {
 
 // --- Generování matematických příkladů ---
 function generateMathProblem(difficulty) {
-    // difficulty scales indefinitely based on wave (1 = build, 2+ = waves)
-    let availableTypes = ['add', 'sub'];
+    // Collect allowed types from user settings
+    let availableTypes = [];
+    if (state.settings.add) availableTypes.push('add');
+    if (state.settings.sub) availableTypes.push('sub');
+    if (state.settings.mul) availableTypes.push('mul');
+    if (state.settings.div) availableTypes.push('div');
+    if (state.settings.comp) availableTypes.push('comp');
+    if (state.settings.round) availableTypes.push('round');
+    if (state.settings.frac) availableTypes.push('frac');
+    if (state.settings.pow) availableTypes.push('pow');
 
-    // As difficulty (wave) increases, unlock new problem types
-    if (difficulty >= 2) availableTypes.push('mul', 'comp');
-    if (difficulty >= 3) availableTypes.push('div', 'round');
-    if (difficulty >= 5) availableTypes.push('frac'); // Fractions addition
-    if (difficulty >= 7) availableTypes.push('pow'); // Powers
+    // Fallback in case user unchecked everything
+    if (availableTypes.length === 0) {
+        availableTypes = ['add'];
+    }
 
     const type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
     
@@ -278,6 +305,16 @@ function generateMathProblem(difficulty) {
 // --- Herní Loop a Základní stavy ---
 function startGame() {
     console.log("Start hry...");
+
+    // Přečíst nastavení
+    state.settings.add = els.settingAdd.checked;
+    state.settings.sub = els.settingSub.checked;
+    state.settings.mul = els.settingMul.checked;
+    state.settings.div = els.settingDiv.checked;
+    state.settings.comp = els.settingComp.checked;
+    state.settings.round = els.settingRound.checked;
+    state.settings.frac = els.settingFrac.checked;
+    state.settings.pow = els.settingPow.checked;
     
     // Reset statistik pro novou hru
     state.stats.score = 0;
@@ -517,6 +554,8 @@ function updateEnemies() {
     for (let i = state.enemies.length - 1; i >= 0; i--) {
         let enemy = state.enemies[i];
         
+        if (enemy.dying) continue; // Mrtvý nepřítel se nehýbe a neútočí, čeká na projektil
+
         // Pohyb doleva
         enemy.x -= enemy.speed;
         enemy.el.style.left = `${enemy.x}px`;
