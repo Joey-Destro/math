@@ -814,15 +814,6 @@ els.defendInput.removeEventListener('keyup', () => {}); // Nelze jednoduše odst
 // Protože JS neumožňuje snadno odstranit anonymní event listenery vytvořené dříve, upravíme logiku uvnitř listenerů
 // tím, že `handleDefendInput` bude vědět o QTE (což už dělá přes return).
 
-function checkGlobalInput(e) {
-    if (state.phase !== 'defend') return;
-    
-    // Pokud je aktivní QTE
-    if (state.qte.active && e.key === 'Enter' && els.defendInput.value !== '') {
-        resolveQTEInput(els.defendInput.value);
-    }
-}
-
 // Přiřadíme do globálního listeneru, abychom nepoužívali duplicitní event listenery na inputu
 window.addEventListener('keyup', (e) => {
     if (state.phase === 'defend' && state.qte.active) {
